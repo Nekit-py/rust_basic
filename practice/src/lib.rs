@@ -108,11 +108,7 @@ fn uniq_digit(s: &str) -> u8 {
 
 fn uniq_digit_2(s: &str) -> Option<u8> {
     if s.len() == 1 {
-        match s.parse::<u8>().ok(){
-           Some(num) => return Some(num),
-           None => return None 
-        }
-        // return s.parse::<u8>().unwrap()
+        return s.parse::<u8>().ok()
     }
     let mut map : HashMap<char, u8>= HashMap::new();
        for ch in s.chars() {
@@ -157,36 +153,24 @@ fn missing_num(nums: &[i32]) -> i32 {
 */
 
 fn validate_parent(s: &str) -> bool {
-    let map = HashMap::from([
-        ('(', ')'),
-        ('[', ']'),
-        ('{', '}'),
-        ('<', '>'),
-        (')', '('),
-        (']', '['),
-        ('}', '{'),
-        ('>', '<'),
-    ]);
+   let map = HashMap::from([
+       ('(', ')'),
+       ('[', ']'),
+       ('{', '}'),
+       ('<', '>'),
+   ]);
 
-    let mut counter : HashMap<char, u8>= HashMap::new();
+   let mut stack = Vec::new();
 
-    for ch in s.chars() {
-            counter.entry(ch).and_modify(|counter| *counter += 1)
-                .or_insert(1);
-    }
+   for ch in s.chars() {
+       if let Some(&open) = map.get(&ch) {
+           stack.push(open);
+       } else if stack.pop() != Some(ch) {
+           return false;
+       }
+   }
 
-    for (k, v) in counter.iter() {
-        let pair = map.get(k).unwrap();
-        let count = counter.get(pair);
-
-        match count {
-           Some(num) => {
-            if v != num { return false }
-           },
-           None => return false
-        }
-    }
-    true
+   stack.is_empty()
 }
 
 #[cfg(test)]
