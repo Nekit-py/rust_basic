@@ -70,6 +70,7 @@ fn fib(n: u32) -> u32 {
     let mut cur = 1u32;
     let mut summ: u32 = 0;
     let mut idx = 2;
+
     while idx <= n {
         summ = prev + cur;
         prev = cur;
@@ -189,12 +190,12 @@ mod tests {
         assert_eq!(&fizzbuzz(49), "49");
     }
     fn test_validate_parent() {
-        assert_eq!(validate_parent("()"), true);
-        assert_eq!(validate_parent("()[]{}"), true);
-        assert_eq!(validate_parent("({[]()})"), true);
-        assert_eq!(validate_parent("(}"), false);
-        assert_eq!(validate_parent("()]"), false);
-        assert_eq!(validate_parent("(){"), false);
+        assert!(validate_parent("()"));
+        assert!(validate_parent("()[]{}"));
+        assert!(validate_parent("({[]()})"));
+        assert!(validate_parent("(}"));
+        assert!(validate_parent("()]"));
+        assert!(validate_parent("(){"));
     }
 
     #[test]
