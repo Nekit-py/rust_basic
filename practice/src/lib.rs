@@ -7,26 +7,19 @@ use std::collections::HashMap;
     2. Если число кратно 5, то возвращаем строку "Buzz"
     3. Если число кратно и 3, и 5, то возвращаем строку "FizzBuzz"
     4. В остальных случаях возвращаем строку, содержащую данное число
-    
+
     Написать функцию fizzbuzz_list, которая получает число `n: u32` и возвращает
     список строк, содержащих строковые представления fizzbuzz
     для чисел в диапазоне от 1 до n. Написать тесты.
 */
 fn fizzbuzz(num: u32) -> String {
-    let string: String = if num % 3 == 0 {
-        if num % 5 == 0{
-            "FizzBuzz".to_owned()
-        } else {
-        "Fizz".to_owned()
-        }
-    } else if num % 5 == 0 {
-        "Buzz".to_owned()
-    } else {
-        num.to_string()
-    };
-    string
+    match (num % 5, num % 3) {
+        (0, 0) => "FizzBuzz".to_owned(),
+        (_, 0) => "Fizz".to_owned(),
+        (0, _) => "Buzz".to_owned(),
+        (_, _) => num.to_string(),
+    }
 }
-
 
 /*
     Написать функцию, которая будет вычислять произведение цифр числа,
@@ -35,17 +28,20 @@ fn fizzbuzz(num: u32) -> String {
 */
 
 fn digit_product(n: u32) -> u8 {
-    let n_string = n.to_string();
-    if n_string.len() == 1 {
-        return n as u8
+    if n < 10 {
+        return n as u8;
     }
 
     let mut new_n = 1;
-    for ch in n_string.chars() {
-        if ch == '0' {continue}
-        new_n *= ch.to_digit(10).unwrap();
+    let mut n = n;
+    while n > 0 {
+        let digit = n % 10;
+        if digit != 0 {
+            new_n *= digit;
+        }
+        n /= 10;
     }
-    if new_n < 10 {return new_n as u8}
+
     digit_product(new_n)
 }
 
@@ -65,17 +61,17 @@ fn digit_product(n: u32) -> u8 {
 */
 
 fn fib(n: u32) -> u32 {
-    if n == 1 || n == 0 {return n}
+    if n == 1 || n == 0 {
+        return n;
+    }
     let mut prev = 0u32;
     let mut cur = 1u32;
     let mut summ: u32 = 0;
-    let mut idx = 2;
 
-    while idx <= n {
+    for _ in 2..=n {
         summ = prev + cur;
         prev = cur;
         cur = summ;
-        idx += 1;
     }
     summ
 }
@@ -90,40 +86,45 @@ fn fib(n: u32) -> u32 {
     Но если присутсвует, то не больше одной. Написать тесты.
 */
 
-
 fn uniq_digit(s: &str) -> u8 {
-    if s.len() == 1 {return s.parse::<u8>().unwrap()}
-    let mut map : HashMap<char, u8>= HashMap::new();
-       for ch in s.chars() {
-               map.entry(ch).and_modify(|counter| *counter += 1)
-                   .or_insert(1);
-       }
+    if s.len() == 1 {
+        return s.parse::<u8>().unwrap();
+    }
+    let mut map: HashMap<char, u8> = HashMap::new();
+    for ch in s.chars() {
+        map.entry(ch)
+            .and_modify(|counter| *counter += 1)
+            .or_insert(1);
+    }
     let mut result: u8 = 0;
     for (k, v) in map.iter() {
         if *v == 1 {
             result = k.to_digit(10).unwrap() as u8
         }
     }
-   result
+    result
 }
 
 fn uniq_digit_2(s: &str) -> Option<u8> {
     if s.len() == 1 {
-        return s.parse::<u8>().ok()
+        return s.parse::<u8>().ok();
     }
-    let mut map : HashMap<char, u8>= HashMap::new();
-       for ch in s.chars() {
-            if !ch.is_ascii_digit() {continue}
-               map.entry(ch).and_modify(|counter| *counter += 1)
-                   .or_insert(1);
-       }
+    let mut map: HashMap<char, u8> = HashMap::new();
+    for ch in s.chars() {
+        if !ch.is_ascii_digit() {
+            continue;
+        }
+        map.entry(ch)
+            .and_modify(|counter| *counter += 1)
+            .or_insert(1);
+    }
     let mut result: Option<u8> = None;
     for (k, v) in map.iter() {
         if *v == 1 {
             result = Some(k.to_digit(10).unwrap() as u8)
         }
     }
-   result
+    result
 }
 
 /*
@@ -132,13 +133,14 @@ fn uniq_digit_2(s: &str) -> Option<u8> {
 
     Написать функцию, которая вернёт единственное число, отсутствующее
     в данном массиве.
-    
+
     Гарантируется, что числа в массиве не повторяются и все принадлежат
     заданному диапазону.
 */
 
 fn missing_num(nums: &[i32]) -> i32 {
-    let a = (0..=nums.len() as i32).sum::<i32>();
+    let n = nums.len() as i32;
+    let a = n * (n + 1) / 2;
     let b = nums.iter().sum::<i32>();
     a - b
 }
@@ -149,29 +151,24 @@ fn missing_num(nums: &[i32]) -> i32 {
     - каждой открывающей скобке соответствует закрывающая того же типа
     - соблюдается порядок закрытия скобок
     - для каждой закрывающей скобки есть соответствующая открывающая пара
-    
+
     Написать функцию, которая проверит корректность данной строки.
 */
 
 fn validate_parent(s: &str) -> bool {
-   let map = HashMap::from([
-       ('(', ')'),
-       ('[', ']'),
-       ('{', '}'),
-       ('<', '>'),
-   ]);
+    let map = HashMap::from([('(', ')'), ('[', ']'), ('{', '}'), ('<', '>')]);
 
-   let mut stack = Vec::new();
+    let mut stack = Vec::new();
 
-   for ch in s.chars() {
-       if let Some(&open) = map.get(&ch) {
-           stack.push(open);
-       } else if stack.pop() != Some(ch) {
-           return false;
-       }
-   }
+    for ch in s.chars() {
+        if let Some(&open) = map.get(&ch) {
+            stack.push(open);
+        } else if stack.pop() != Some(ch) {
+            return false;
+        }
+    }
 
-   stack.is_empty()
+    stack.is_empty()
 }
 
 #[cfg(test)]

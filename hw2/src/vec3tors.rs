@@ -22,8 +22,6 @@ pub fn vec3_scalar_sum(a: Vec3, b: Vec3) -> i32 {
     c
 }
 
-
-
 #[cfg(test)]
 pub mod tests {
     use super::*;
