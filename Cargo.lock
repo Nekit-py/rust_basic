@@ -11,5 +11,9 @@ name = "hw2"
 version = "0.1.0"
 
 [[package]]
+name = "hw3"
+version = "0.1.0"
+
+[[package]]
 name = "practice"
 version = "0.1.0"
