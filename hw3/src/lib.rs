@@ -1,5 +1,4 @@
-
-pub fn first_or_second(tup: &mut(i32, i32), condition: bool) -> &mut i32 {
+pub fn first_or_second<T>(tup: &mut (T, T), condition: bool) -> &mut T {
     // Принимает мутабельную ссылку на кортеж и bool значение.
     // Если false, возвращает мутабельную ссылку на первый элемент кортежа.
     // Если true, возвращает мутабельную ссылку на второй элемент кортежа.
@@ -24,14 +23,31 @@ pub fn two_slices<T>(slice: &[T], n: usize) -> (&[T], &[T]) {
     // с нулевого по N-1;
     // с N-го по последний;
     (&slice[0..n], &slice[n..])
-
 }
 
 pub fn slice_array<T>(slice: &[T]) -> [&[T]; 4] {
     // Принимает слайс и возвращает массив слайсов,
     // содержащий четыре равные (насколько возможно) части исходного слайса.
-    todo!();
+    let mut result = [&slice[0..0]; 4];
+    let slice_len = slice.len();
+    let chank_size = slice_len / 4;
+    let mut remainder = slice_len % 4;
+    let mut start = 0;
 
+    // for i in 0..4 {
+    for s in &mut result {
+        let mut end = start + chank_size;
+
+        if remainder > 0 {
+            end += 1;
+            remainder -= 1;
+        }
+
+        // result[i] = &slice[start..end];
+        *s = &slice[start..end];
+        start = end;
+    }
+    result
 }
 
 #[cfg(test)]
@@ -75,16 +91,20 @@ mod tests {
     fn test_two_slices() {
         let vec = (0..10).collect::<Vec<u32>>();
         let (first, second) = two_slices(&vec, 3);
-        assert_eq!(first, &[0,1,2]);
-        assert_eq!(second, &[3,4,5,6,7,8,9]);
+        assert_eq!(first, &[0, 1, 2]);
+        assert_eq!(second, &[3, 4, 5, 6, 7, 8, 9]);
     }
 
-    // #[test]
-    // #[should_panic]
-    // fn test_panic_two_slices() {
-    //     let vec = (0..22).collect::<Vec<u32>>();
-    //     let (first, second) = two_slices(&vec, 22);
-    //     assert_eq!(first, &[4,5,6,7,8,9]);
-    //     assert_eq!(second, &[0,1,2]);
-    // }
+    #[test]
+    fn test_slice_array() {
+        let array = [1, 2, 3, 4, 5, 6, 7, 8];
+        assert_eq!(slice_array(&array), [&[1, 2], &[3, 4], &[5, 6], &[7, 8]]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn panic_test_slice_array() {
+        let array = [1, 2, 3];
+        assert_eq!(slice_array(&array), [&[1, 2], &[3, 4], &[5, 6], &[7, 8]]);
+    }
 }
