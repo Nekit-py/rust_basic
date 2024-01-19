@@ -34,7 +34,6 @@ pub fn slice_array<T>(slice: &[T]) -> [&[T]; 4] {
     let mut remainder = slice_len % 4;
     let mut start = 0;
 
-    // for i in 0..4 {
     for s in &mut result {
         let mut end = start + chank_size;
 
@@ -43,7 +42,6 @@ pub fn slice_array<T>(slice: &[T]) -> [&[T]; 4] {
             remainder -= 1;
         }
 
-        // result[i] = &slice[start..end];
         *s = &slice[start..end];
         start = end;
     }
