@@ -1,12 +1,16 @@
-use std::ops::{Add, Sub};
+use std::{
+    ops::{Add, Sub},
+    cmp::PartialEq
+};
 
 
-#[derive(Default)]
-struct Pair(i32, i32);
+
+#[derive(Default, Debug)]
+pub struct Pair(i32, i32);
 
 
 impl Pair {
-    fn scalar_sum(self, other: Self) -> i32 {
+    pub fn scalar_sum(self, other: Self) -> i32 {
         self.0 + self.1 + other.0 + other.1
     }
 }
@@ -28,6 +32,12 @@ impl Sub for Pair {
     }
 }
 
+impl PartialEq for Pair {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0 && self.1 == other.1
+    }
+}
+
 #[cfg(test)]
 pub mod tests {
     use super::*;
@@ -41,7 +51,7 @@ pub mod tests {
     fn test_pair_vector_sum() {
         let a = Pair(1, 2);
         let b = Pair(2, 3);
-        assert_eq!(a + b, (3, 5));
+        assert_eq!(a + b, Pair(3, 5));
     }
 
     #[test]

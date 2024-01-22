@@ -1,4 +1,7 @@
 
+use std::cmp::PartialEq;
+
+#[derive(Debug)]
 pub struct SignedCounter {
     pub value: isize
 }
@@ -7,6 +10,13 @@ impl Default for SignedCounter {
     fn default() -> Self {
         SignedCounter { value: 0}
     }
+}
+
+impl PartialEq for SignedCounter {
+    fn eq(&self, other: &Self) -> bool {
+        self.value == other.value
+    }
+    
 }
 
 impl SignedCounter {
@@ -38,34 +48,36 @@ impl UnsignedCounter {
 
 #[cfg(test)]
 pub mod tests {
-    // use super::{signed, unsigned};
     use super::{SignedCounter, UnsignedCounter};
 
     #[test]
     fn test_default_signed_counter() {
-        assert_eq!(SignedCounter::default(), 0);
+        assert_eq!(SignedCounter::default(), SignedCounter{value:0});
     }
 
     #[test]
     fn test_next_signed() {
         let mut sc = SignedCounter::default();
-        assert_eq!(sc::next(), 1);
+        sc.next();
+        assert_eq!(sc.value, 1);
     }
 
     #[test]
     fn test_prev_signed() {
         let mut sc = SignedCounter::default();
-        assert_eq!(sc::prev(), -1);
+        sc.prev();
+        assert_eq!(sc.value, -1);
     }
 
     #[test]
     fn test_default_unsigned_counter() {
-        assert_eq!(UnsignedCounter::default(), 0);
+        assert_eq!(UnsignedCounter::default().value, 0);
     }
 
     #[test]
     fn test_next_unsigned() {
-        let mut uc = UnsignedCounter::default():
-        assert_eq!(uc::next(), 1);
+        let mut uc = UnsignedCounter::default();
+        uc.next();
+        assert_eq!(uc.value, 1);
     }
 }
