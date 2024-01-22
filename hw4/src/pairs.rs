@@ -1,13 +1,10 @@
 use std::{
+    cmp::PartialEq,
     ops::{Add, Sub},
-    cmp::PartialEq
 };
-
-
 
 #[derive(Default, Debug)]
 pub struct Pair(i32, i32);
-
 
 impl Pair {
     pub fn scalar_sum(self, other: Self) -> i32 {
@@ -15,10 +12,9 @@ impl Pair {
     }
 }
 
-
 impl Add for Pair {
     type Output = Self;
-    
+
     fn add(self, other: Self) -> Self {
         Self(self.0 + other.0, self.1 + other.1)
     }
