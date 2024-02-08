@@ -17,8 +17,7 @@ pub fn elem_mut_ref_by_idx<T>(slice: &mut [T], n: usize) -> &mut T {
 pub fn elem_mut_ref_by_idx_end<T>(slice: &mut [T], n: usize) -> &mut T {
     if n == 0 {
         &mut slice[slice.len() - 1]
-    }
-    else {
+    } else {
         &mut slice[slice.len() - n]
     }
 }
@@ -106,13 +105,19 @@ mod tests {
     #[test]
     fn test_slice_array() {
         let array = [1, 2, 3, 4, 5, 6, 7, 8];
-        assert_eq!(slice_array::<4, i32>(&array), [&[1, 2], &[3, 4], &[5, 6], &[7, 8]]);
+        assert_eq!(
+            slice_array::<4, i32>(&array),
+            [&[1, 2], &[3, 4], &[5, 6], &[7, 8]]
+        );
     }
 
     #[test]
     #[should_panic]
     fn panic_test_slice_array() {
         let array = [1, 2, 3];
-        assert_eq!(slice_array::<4, i32>(&array), [&[1, 2], &[3, 4], &[5, 6], &[7, 8]]);
+        assert_eq!(
+            slice_array::<4, i32>(&array),
+            [&[1, 2], &[3, 4], &[5, 6], &[7, 8]]
+        );
     }
 }

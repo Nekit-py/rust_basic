@@ -12,27 +12,11 @@
 ""cargo clippy"" и ""cargo fmt --check"" не выдают предупреждений и ошибок.
  */
 
-use std::ops::{Index, Add, Sub, Mul, Div, IndexMut};
-
 pub enum Item {
     First,
     Second,
     Third,
 }
-
-// По сути тут я хотел убить 3 зайцев сразу:
-// 1) Чтобы к элементам типа Tuple и Array я мог обращаться по индексу,
-// указывая вместо числа Item
-// 2) Метод get_item я хотел заменить просто обращением по индексу,
-// получая ссылку на нужные элемент коллекции
-// 3) Метод set_item - на IndexMut. По мутабельной ссылке присваивать значение,
-// но не удалось, т.к. кортеж содерижт разные типы.
-// Если в трейте Index я могу просто скастить в нужный тип, то IndexMut уже такое не допускает и это логично,
-// не придумал как обойти...
-// 4) Метод sum в трейте Sumary я хотел реализовать просто суммой 3 элементов коллекий (Tuple & Array), т.к. у обоих фиксированная длина.
-// Аналогичным образом is_default, через индекс Item.
-// Где я свернул не туда?)
-
 
 impl Item {
     pub fn index(&self) -> usize {
@@ -44,109 +28,117 @@ impl Item {
     }
 }
 
-#[derive(Debug, Default)]
+trait Sequence: Default {
+    fn is_default(&self) -> bool;
+    fn sum(&self) -> f64;
+}
+
+trait Accessor {
+    fn get(&self, index: Item) -> f64;
+    fn set(&mut self, index: Item, value: f64);
+}
+
+#[derive(Default)]
 pub struct Tuple(u32, f32, f64);
 
-impl Index<Item> for Tuple {
-    type Output = f64;
-
-    fn index(&self, item: Item) -> &Self::Output {
-        match item {
-            Item::First => &(self.0 as f64),
-            Item::Second => &(self.1 as f64),
-            Item::Third => &self.2,
-        }
-    }
-}
-
-impl IndexMut<Item> for Tuple {
-
-    fn index_mut(&mut self, item: Item) -> &mut Self::Output {
-        match item {
-            Item::First => &mut self.0,
-            Item::Second => &mut self.1,
-            Item::Third => &mut self.2,
-        }
-    }
-}
-
-impl Tuple {
-
-    pub fn is_default(&self) -> bool {
-        self.0 == 0 && self.1 == 0.0 && self.2 == 0.0
+impl Sequence for Tuple {
+    fn is_default(&self) -> bool {
+        let default = Self::default();
+        self.0 == default.0 && self.1 == default.1 && self.2 == default.2
     }
 
-    pub fn sum(&self) -> f64 {
+    fn sum(&self) -> f64 {
         self.0 as f64 + self.1 as f64 + self.2
     }
 }
 
-#[derive(Debug, Default)]
-pub struct Array<T: Add + Sub + Mul + Div>([T; 3]);
+impl Accessor for Tuple {
+    fn get(&self, index: Item) -> f64 {
+        match index {
+            Item::First => self.0 as f64,
+            Item::Second => self.1 as f64,
+            Item::Third => self.2,
+        }
+    }
 
-impl<T: Add + Sub + Mul + Div> Index<Item> for Array<T> {
-    type Output = T;
-
-    fn index(&self, item: Item) -> &Self::Output {
-        match item {
-            Item::First => &self.0[0],
-            Item::Second => &self.0[1],
-            Item::Third => &self.0[2],
+    fn set(&mut self, index: Item, value: f64) {
+        match index {
+            Item::First => self.0 = value as u32,
+            Item::Second => self.1 = value as f32,
+            Item::Third => self.2 = value,
         }
     }
 }
 
-impl<T: Add + Sub + Mul + Div> IndexMut<Item> for Array<T> {
+#[derive(Default)]
+pub struct Array([f64; 3]);
 
-    fn index_mut(&mut self, item: Item) -> &mut Self::Output {
-        match item {
-            Item::First => &mut self.0[0],
-            Item::Second => &mut self.0[1],
-            Item::Third => &mut self.0[2],
-        }
-    }
-}
-
-// impl Array {
-//     pub fn is_default(&self) -> bool {
-//         for value in &self.0 {
-//             if *value != 0.0 {
-//                 return false;
-//             }
-//         }
-//         true
-//     }
-
-//     pub fn sum(&self) -> f64 {
-//         let mut sum = 0.0;
-//         for value in &self.0 {
-//             sum += *value;
-//         }
-//         sum
-//     }
-// }
-
-trait Sumary {
-    type Item = Item;
-
+impl Sequence for Array {
     fn sum(&self) -> f64 {
-        &self.[Item::First] as f64 + &self.[Item::Second] as f64 + &self.[Item::Second] as f64
+        self.0.iter().sum()
+    }
+
+    fn is_default(&self) -> bool {
+        self.0.iter().all(|&value| value == 0.0)
     }
 }
 
+impl Accessor for Array {
+    fn get(&self, index: Item) -> f64 {
+        let idx = index.index();
+        self.0[idx]
+    }
 
+    fn set(&mut self, index: Item, value: f64) {
+        self.0[index.index()] = value;
+    }
+}
 
-// pub fn add(left: usize, right: usize) -> usize {
-//     left + right
-// }
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
+    #[test]
+    fn test_sequence_sum() {
+        let tuple = Tuple(3, 4.0, 5.0);
+        assert_eq!(tuple.sum(), 12.0);
 
-//     #[test]
-//     fn it_works() {
-//         let result = add(2, 2);
-//         assert_eq!(result, 4);
-//     }
-// }
+        let array = Array([3.0, 4.0, 5.0]);
+        assert_eq!(array.sum(), 12.0);
+    }
+
+    #[test]
+    fn test_sequence_is_default() {
+        let tuple = Tuple(0, 0.0, 0.0);
+        assert!(tuple.is_default());
+
+        let array = Array([0.0, 0.0, 0.0]);
+        assert!(array.is_default());
+
+        let non_default_tuple = Tuple(1, 0.0, 0.0);
+        assert!(!non_default_tuple.is_default());
+
+        let non_default_array = Array([1.0, 0.0, 0.0]);
+        assert!(!non_default_array.is_default());
+    }
+
+    #[test]
+    fn test_accessor_get() {
+        let tuple = Tuple(1, 2.2, 3.3);
+        assert_eq!(tuple.get(Item::Third), 3.3);
+
+        let array = Array([1.0, 2.0, 3.0]);
+        assert_eq!(array.get(Item::Third), 3.0);
+    }
+
+    #[test]
+    fn test_accessor_set() {
+        let mut tuple = Tuple(1, 2.2, 3.3);
+        tuple.set(Item::First, 111.0);
+        assert_eq!(tuple.0, 111);
+
+        let mut array = Array([1.0, 2.0, 3.0]);
+        array.set(Item::Second, 4.44);
+        assert_eq!(array.get(Item::Second,), 4.44);
+    }
+}
