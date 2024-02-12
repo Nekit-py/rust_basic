@@ -28,9 +28,21 @@ impl Item {
     }
 }
 
-trait Sequence: Default {
-    fn is_default(&self) -> bool;
-    fn sum(&self) -> f64;
+trait Sequence: Default + Accessor {
+    fn is_default(&self) -> bool {
+        let default = Self::default();
+        if default.get(Item::First) == self.get(Item::First)
+            && default.get(Item::Second) == self.get(Item::Second)
+            && default.get(Item::Third) == self.get(Item::Third)
+        {
+            return true;
+        }
+        false
+    }
+
+    fn sum(&self) -> f64 {
+        self.get(Item::First) + self.get(Item::Second) + self.get(Item::Third)
+    }
 }
 
 trait Accessor {
@@ -41,16 +53,7 @@ trait Accessor {
 #[derive(Default)]
 pub struct Tuple(u32, f32, f64);
 
-impl Sequence for Tuple {
-    fn is_default(&self) -> bool {
-        let default = Self::default();
-        self.0 == default.0 && self.1 == default.1 && self.2 == default.2
-    }
-
-    fn sum(&self) -> f64 {
-        self.0 as f64 + self.1 as f64 + self.2
-    }
-}
+impl Sequence for Tuple {}
 
 impl Accessor for Tuple {
     fn get(&self, index: Item) -> f64 {
@@ -73,15 +76,7 @@ impl Accessor for Tuple {
 #[derive(Default)]
 pub struct Array([f64; 3]);
 
-impl Sequence for Array {
-    fn sum(&self) -> f64 {
-        self.0.iter().sum()
-    }
-
-    fn is_default(&self) -> bool {
-        self.0.iter().all(|&value| value == 0.0)
-    }
-}
+impl Sequence for Array {}
 
 impl Accessor for Array {
     fn get(&self, index: Item) -> f64 {
@@ -92,6 +87,10 @@ impl Accessor for Array {
     fn set(&mut self, index: Item, value: f64) {
         self.0[index.index()] = value;
     }
+}
+
+fn test_sum<T: Sequence + Default>() {
+
 }
 
 #[cfg(test)]
