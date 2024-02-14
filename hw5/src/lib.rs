@@ -89,10 +89,6 @@ impl Accessor for Array {
     }
 }
 
-fn test_sum<T: Sequence + Default>() {
-
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
