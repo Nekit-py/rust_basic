@@ -9,7 +9,7 @@ pub fn increased_by_first_item<'a>(data: &[usize], n: &'a mut usize) -> &'a mut 
     n
 }
 
-pub struct TwoValues<'a, 'b: 'a> {
+pub struct TwoValues<'a, 'b> {
     pub first: &'a usize,
     pub second: &'b usize,
 }
@@ -19,7 +19,7 @@ impl<'a, 'b> TwoValues<'a, 'b> {
         Self { first, second }
     }
 
-    pub fn get_first(&self) -> &usize {
+    pub fn get_first(&self) -> &'a usize {
         self.first
     }
 
