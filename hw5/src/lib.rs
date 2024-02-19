@@ -93,47 +93,34 @@ impl Accessor for Array {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_sequence_sum() {
-        let tuple = Tuple(3, 4.0, 5.0);
-        assert_eq!(tuple.sum(), 12.0);
+    fn test_sequence<T: Sequence>() {
+        let mut sequence = T::default();
 
-        let array = Array([3.0, 4.0, 5.0]);
-        assert_eq!(array.sum(), 12.0);
+        // Test default values
+        assert!(sequence.is_default());
+
+        // Test setting and getting values (Accessor)
+        sequence.set(Item::First, 1.0);
+        sequence.set(Item::Second, 2.0);
+        sequence.set(Item::Third, 3.0);
+        assert_eq!(sequence.get(Item::First), 1.0);
+        assert_eq!(sequence.get(Item::Second), 2.0);
+        assert_eq!(sequence.get(Item::Third), 3.0);
+
+        // Test sum
+        assert_eq!(sequence.sum(), 6.0);
+
+        // Test non-default values
+        assert!(!sequence.is_default());
     }
 
     #[test]
-    fn test_sequence_is_default() {
-        let tuple = Tuple(0, 0.0, 0.0);
-        assert!(tuple.is_default());
-
-        let array = Array([0.0, 0.0, 0.0]);
-        assert!(array.is_default());
-
-        let non_default_tuple = Tuple(1, 0.0, 0.0);
-        assert!(!non_default_tuple.is_default());
-
-        let non_default_array = Array([1.0, 0.0, 0.0]);
-        assert!(!non_default_array.is_default());
+    fn test_tuple_sequence() {
+        test_sequence::<Tuple>();
     }
 
     #[test]
-    fn test_accessor_get() {
-        let tuple = Tuple(1, 2.2, 3.3);
-        assert_eq!(tuple.get(Item::Third), 3.3);
-
-        let array = Array([1.0, 2.0, 3.0]);
-        assert_eq!(array.get(Item::Third), 3.0);
-    }
-
-    #[test]
-    fn test_accessor_set() {
-        let mut tuple = Tuple(1, 2.2, 3.3);
-        tuple.set(Item::First, 111.0);
-        assert_eq!(tuple.0, 111);
-
-        let mut array = Array([1.0, 2.0, 3.0]);
-        array.set(Item::Second, 4.44);
-        assert_eq!(array.get(Item::Second,), 4.44);
+    fn test_array_sequence() {
+        test_sequence::<Array>();
     }
 }
